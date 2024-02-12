@@ -1,30 +1,45 @@
 # swayprop
 
-xprop for Sway
-
+Xprop for Sway. Inspired by https://github.com/vilari-mickopf/hyprprop, but 
+shares almost no code with it anymore.
 
 ## Dependencies
 
-FIXXME
+- Sway
+- jq for parsing `swaymsg` output
+- slurp to for window selection
 
-- `hyprland` obviously
-- [hyprevents](https://github.com/vilari-mickopf/hyprevents) capture window changed events to rerun slurp
-- `socat` to connect hyprevents with hyprprop events
-- `slurp` to select an area on the screen
-- `jq` to parse hyprctl output
+## Installation
 
-## Install
+### Basher
+
+[![basher-install](https://www.basher.it/assets/logo/basher_install.svg)](https://www.basher.it/package/)
+
 ```bash
-yay -S hyprprop-git
+basher install git.alternerd.tv/alterNERDtive/swayprop
 ```
-or
+(Github mirror:
 ```bash
-sudo make install
+basher install alterNERDtive/swayprop
 ```
+)
+
+### Manual
+
+Clone the repository (`git clone 
+https://git.alternerd.tv/alterNERDtive/swayprop.git`) or download and extract 
+a repository archive, then link / copy `swayprop` into your `PATH`.
 
 ## Usage
+
 Just run
 ```bash
 swayprop
 ```
-and select desired window
+and select desired window.
+
+The tool will print the selected Window’s JSON output from `swaymsg -t 
+get_tree`, or nothing on error/cancel.
+
+If you cancel the selection it will `exit 1`, in case slurp errors out it relays 
+the exit code.
