@@ -1,0 +1,24 @@
+name: Create release on tag push
+
+on:
+  push:
+    tags:
+      - 'release/*'
+
+jobs:
+  build:
+    name: Create release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Draft release
+        uses: ncipollo/release-action@v1
+        with:
+          token: ${{ secrets.RELEASE_TOKEN }}
+          bodyFile: "CHANGELOG.md"
+          draft: true
