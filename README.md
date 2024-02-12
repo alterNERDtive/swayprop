@@ -7,7 +7,7 @@ shares almost no code with it anymore.
 
 - Sway
 - jq for parsing `swaymsg` output
-- slurp to for window selection
+- slurp for window selection
 
 ## Installation
 
