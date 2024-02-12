@@ -1,8 +1,12 @@
-# hyprprop
-xprop for Hyprland
+# swayprop
+
+xprop for Sway
 
 
 ## Dependencies
+
+FIXXME
+
 - `hyprland` obviously
 - [hyprevents](https://github.com/vilari-mickopf/hyprevents) capture window changed events to rerun slurp
 - `socat` to connect hyprevents with hyprprop events
@@ -21,6 +25,6 @@ sudo make install
 ## Usage
 Just run
 ```bash
-hyprprop
+swayprop
 ```
 and select desired window

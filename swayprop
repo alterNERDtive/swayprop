@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+
+EVENT_HANDLER="$(dirname "$0")/event_handler"
+
+prop() {
+    out_file=/tmp/swayprop.out
+    error_file=/tmp/swayprop.error
+    # find all visible windows and get their geometry, then
+    # format slurp-friendly, then
+    # run slurp!
+    swaymsg -t get_tree | jq  '.. | select(.visible==true?) | .rect | [ .x,.y,.width,.height ]' \
+                      | jq -r '"\(.[0]),\(.[1]) \(.[2])x\(.[3])"' \
+                      | slurp -r > $out_file 2> $error_file &
+    PID=$!
+    wait $PID
+
+    error=$(cat $error_file)
+    rm $error_file
+
+    selection=$(cat $out_file)
+    rm $out_file
+
+    : [ -n "$error" ] && prop # invalid box format: null,null nullxnull
+    : [ -z "$selection" ] && cleanup && exit
+
+    x=$(echo "$selection" | awk -F'[, x]' '{print $1}')
+    y=$(echo "$selection" | awk -F'[, x]' '{print $2}')
+    w=$(echo "$selection" | awk -F'[, x]' '{print $3}')
+    h=$(echo "$selection" | awk -F'[, x]' '{print $4}')
+
+    # Find the window matching the selection
+    swaymsg -t get_tree | \
+      jq ".. | select((.rect.x==$x?) and (.rect.y=$y?) and (.rect.width==$w?) and (.rect.height=$h?) and (.visible==true?))"
+
+    cleanup
+    exit
+}
+
+cleanup() {
+    : hyprevents -f "$EVENT_HANDLER" -k
+}
+
+event_handler() {
+    : pkill slurp
+    : wait $PID 2>/dev/null
+    : prop
+}
+
+terminate() {
+    : pkill slurp
+    : wait $PID 2>/dev/null
+    : cleanup
+    : exit
+}
+
+# Capture events on hyprland window/workspace change events
+: hyprevents -f "$EVENT_HANDLER" 2>/dev/null &
+: trap event_handler USR1
+
+: trap terminate SIGINT
+prop
