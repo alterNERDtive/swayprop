@@ -1,61 +1,33 @@
 #!/usr/bin/env bash
 
-EVENT_HANDLER="$(dirname "$0")/event_handler"
-
 prop() {
-    out_file=/tmp/swayprop.out
-    error_file=/tmp/swayprop.error
-    # find all visible windows and get their geometry, then
+    # Needs to be declared before it’s assigned or I cannot grab the exit code 
+    # later. Fun race condition <.<
+    local selection
+    local window
+    # Find all visible windows and get their geometry, then
     # format slurp-friendly, then
     # run slurp!
-    swaymsg -t get_tree | jq  '.. | select(.visible==true?) | .rect | [ .x,.y,.width,.height ]' \
+    selection=$(swaymsg -t get_tree | jq  '.. | select(.visible==true?) | .rect | [ .x,.y,.width,.height ]' \
                       | jq -r '"\(.[0]),\(.[1]) \(.[2])x\(.[3])"' \
-                      | slurp -r > $out_file 2> $error_file &
-    PID=$!
-    wait $PID
+                      | slurp -r)
 
-    error=$(cat $error_file)
-    rm $error_file
+    local ret=$?
+    [ $ret -ne 0 ] && exit $ret
 
-    selection=$(cat $out_file)
-    rm $out_file
+    local x=$(echo "$selection" | awk -F'[, x]' '{print $1}')
+    local y=$(echo "$selection" | awk -F'[, x]' '{print $2}')
+    local w=$(echo "$selection" | awk -F'[, x]' '{print $3}')
+    local h=$(echo "$selection" | awk -F'[, x]' '{print $4}')
 
-    : [ -n "$error" ] && prop # invalid box format: null,null nullxnull
-    : [ -z "$selection" ] && cleanup && exit
+    # Find the window matching the selection.
+    window=$(swaymsg -t get_tree | \
+      jq ".. | select((.rect.x==$x?) and (.rect.y=$y?) and (.rect.width==$w?) and (.rect.height=$h?) and (.visible==true?))")
 
-    x=$(echo "$selection" | awk -F'[, x]' '{print $1}')
-    y=$(echo "$selection" | awk -F'[, x]' '{print $2}')
-    w=$(echo "$selection" | awk -F'[, x]' '{print $3}')
-    h=$(echo "$selection" | awk -F'[, x]' '{print $4}')
+    [ -z "$window" ] && exit 1
 
-    # Find the window matching the selection
-    swaymsg -t get_tree | \
-      jq ".. | select((.rect.x==$x?) and (.rect.y=$y?) and (.rect.width==$w?) and (.rect.height=$h?) and (.visible==true?))"
-
-    cleanup
-    exit
+    # Pretty print, since capturing the output of `swaymsg` makes it uglify.
+    echo $window | jq
 }
 
-cleanup() {
-    : hyprevents -f "$EVENT_HANDLER" -k
-}
-
-event_handler() {
-    : pkill slurp
-    : wait $PID 2>/dev/null
-    : prop
-}
-
-terminate() {
-    : pkill slurp
-    : wait $PID 2>/dev/null
-    : cleanup
-    : exit
-}
-
-# Capture events on hyprland window/workspace change events
-: hyprevents -f "$EVENT_HANDLER" 2>/dev/null &
-: trap event_handler USR1
-
-: trap terminate SIGINT
 prop
