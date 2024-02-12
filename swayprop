@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-prop() {
+function prop () {
   # Needs to be declared before it’s assigned or I cannot grab the exit code 
   # later. Fun race condition <.<
   local selection
@@ -29,5 +29,15 @@ prop() {
   # Pretty print, since capturing the output of `swaymsg` makes it uglify.
   echo $window | jq
 }
+
+function check_dependencies () {
+  local ret=0
+  for cmd in "$@"; do
+    ! [ $(command -v $cmd) ] && echo "Missing dependency: $cmd." && ret=1
+  done
+  return $ret
+}
+
+( check_dependencies "jq" "slurp" "swaymsg" ) || exit 1
 
 prop
