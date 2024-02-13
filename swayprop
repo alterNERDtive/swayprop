@@ -22,7 +22,7 @@ function prop () {
 
   # Find the window matching the selection.
   window=$(swaymsg -t get_tree | \
-    jq ".. | select((.rect.x==$x?) and (.rect.y=$y?) and (.rect.width==$w?) and (.rect.height=$h?) and (.visible==true?))")
+    jq ".. | select((.rect.x==$x?) and (.rect.y==$y?) and (.rect.width==$w?) and (.rect.height=$h?) and (.visible==true?))")
 
   [ -z "$window" ] && exit 1
 
