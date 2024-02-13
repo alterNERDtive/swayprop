@@ -18,17 +18,14 @@ shares almost no code with it anymore.
 ```bash
 basher install git.alternerd.tv/alterNERDtive/swayprop
 ```
-(Github mirror:
-```bash
-basher install alterNERDtive/swayprop
-```
-)
+
+(Github mirror: `basher install alterNERDtive/swayprop`)
 
 ### Manual
 
-Clone the repository (`git clone 
-https://git.alternerd.tv/alterNERDtive/swayprop.git`) or download and extract 
-a repository archive, then link / copy `swayprop` into your `PATH`.
+Clone the repository
+(`git clone https://git.alternerd.tv/alterNERDtive/swayprop.git`) or download 
+and extract a repository archive, then link / copy `swayprop` into your `PATH`.
 
 ## Usage
 
