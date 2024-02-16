@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+_pid=$(swayprop | jq .pid)
+if [ -z "${_pid}" ]; then
+  exit 1
+else
+  kill "$@" $_pid
+fi

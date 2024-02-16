@@ -40,3 +40,9 @@ get_tree`, or nothing on error/cancel.
 
 If you cancel the selection it will `exit 1`, in case slurp errors out it relays 
 the exit code.
+
+In case you miss `xkill`, run
+```bash
+swaykill
+```
+:)
